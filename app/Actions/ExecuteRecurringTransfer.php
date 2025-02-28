@@ -28,7 +28,7 @@ class ExecuteRecurringTransfer
         }
 
         $sender = $recurringTransfer->user;
-        $recipient = User::whereEmail($sender->email)->first();
+        $recipient = User::whereEmail($recurringTransfer->recipient_email)->first();
 
         if (!$recipient) {
             $recurringTransfer->update(['is_active' => false]);

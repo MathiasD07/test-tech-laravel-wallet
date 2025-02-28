@@ -9,13 +9,14 @@ use App\Exceptions\InsufficientBalance;
 use App\Models\User;
 use App\Models\WalletTransfer;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 readonly class PerformWalletTransfer
 {
     public function __construct(protected PerformWalletTransaction $performWalletTransaction) {}
 
     /**
-     * @throws InsufficientBalance
+     * @throws InsufficientBalance|Throwable
      */
     public function execute(User $sender, User $recipient, int $amount, string $reason): WalletTransfer
     {

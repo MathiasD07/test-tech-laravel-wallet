@@ -8,6 +8,7 @@ use App\Http\Middleware\ForceAcceptJson;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,6 +32,6 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command(ExecuteRecurringTransfer::class)->dailyAt(2);
+        $schedule->command('app:execute-recurring-transfers')->dailyAt(2);
     })
     ->create();
