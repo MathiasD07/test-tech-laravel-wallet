@@ -13,6 +13,14 @@ class Wallet extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'balance',
+    ];
+
+    protected $casts = [
+        'balance' => 'integer',
+    ];
+
     /**
      * @return BelongsTo<User>
      */
