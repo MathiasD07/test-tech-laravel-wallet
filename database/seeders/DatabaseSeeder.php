@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Models\RecurringTransfer;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Wallet;
 use Illuminate\Database\Seeder;
 
@@ -16,7 +16,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->has(Wallet::factory()->richChillGuy())->create([
+        User::factory()
+            ->has(Wallet::factory()->richChillGuy())
+            ->has(RecurringTransfer::factory())
+            ->create([
             'name' => 'Rich Chill Guy',
             'email' => 'rich.chill.guy@test.fr',
         ]);

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\ExecuteRecurringTransfer;
 use App\Exceptions\ApiException;
 use App\Http\Middleware\ForceAcceptJson;
 use Illuminate\Foundation\Application;
@@ -28,4 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return true;
         });
-    })->create();
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->command(ExecuteRecurringTransfer::class)->dailyAt(2);
+    })
+    ->create();

@@ -7,6 +7,7 @@ use App\Enums\WalletTransactionType;
 use App\Exceptions\InsufficientBalance;
 use App\Models\Wallet;
 
+use App\Notifications\LowBalanceNotification;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 
@@ -87,4 +88,52 @@ test('force a debit transaction when balance is insufficient', function () {
         'type' => WalletTransactionType::DEBIT,
         'reason' => 'test',
     ]);
+});
+
+test('user is notified when balance is low', function () {
+    Notification::fake();
+
+    $wallet = Wallet::factory()->forUser()->richChillGuy()->create();
+
+    $this->action->execute(wallet: $wallet, type: WalletTransactionType::DEBIT, amount: 999_999, reason: 'test', force: true);
+
+    Notification::assertSentTo(
+        $wallet->user,
+        LowBalanceNotification::class,
+        static function (LowBalanceNotification $notification) {
+            return $notification->balance === 1;
+        }
+    );
+});
+
+test('user is not notified when balance is sufficient', function () {
+    Notification::fake();
+
+    $wallet = Wallet::factory()->forUser()->richChillGuy()->create();
+
+    $this->action->execute(wallet: $wallet, type: WalletTransactionType::DEBIT, amount: 999_000, reason: 'test', force: true);
+
+    Notification::assertNothingSent();
+});
+
+test('user is not notified twice in 24 hours', function () {
+   Notification::fake();
+
+   $wallet = Wallet::factory()->forUser()->richChillGuy()->create();
+
+   $this->action->execute(wallet: $wallet, type: WalletTransactionType::DEBIT, amount: 999_998, reason: 'test', force: true);
+
+   Notification::assertSentTo(
+        $wallet->user,
+        LowBalanceNotification::class,
+        static function (LowBalanceNotification $notification) {
+            return $notification->balance === 2;
+        }
+    );
+
+    Notification::fake();
+
+    $this->action->execute(wallet: $wallet, type: WalletTransactionType::DEBIT, amount: 1, reason: 'test', force: true);
+
+    Notification::assertNothingSent();
 });

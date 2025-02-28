@@ -14,8 +14,12 @@ use Throwable;
 
 readonly class PerformWalletTransaction
 {
+    public function __construct(protected PerformCheckLowBalance $performCheckLowBalance)
+    {
+    }
+
     /**
-     * @throws InsufficientBalance
+     * @throws InsufficientBalance|Throwable
      */
     public function execute(Wallet $wallet, WalletTransactionType $type, int $amount, string $reason, ?WalletTransfer $transfer = null, bool $force = false): WalletTransaction
     {
@@ -32,6 +36,10 @@ readonly class PerformWalletTransaction
             ]);
 
             $this->updateWallet($wallet, $type, $amount);
+
+            if ($type === WalletTransactionType::DEBIT && $wallet->user) {
+                $this->performCheckLowBalance->execute($wallet->user);
+            }
 
             return $transaction;
         });
